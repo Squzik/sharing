@@ -1,0 +1,36 @@
+spring:
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: ${DB_DRIVER}
+
+  flyway:
+    enabled: true
+    table: schema_version_test
+    url: ${spring.datasource.url}
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    baseline-on-migrate: true
+
+app:
+  minio:
+    url: ${S3_URL}
+    buckets:
+      photos:
+        name: ${BUCKET_PHOTOS_NAME}
+        access: ${BUCKET_PHOTOS_ACCESS}
+        secret: ${BUCKET_PHOTOS_SECRET}
+      documents:
+        name: ${BUCKET_DOCUMENTS_NAME}
+        access: ${BUCKET_DOCUMENTS_ACCESS}
+        secret: ${BUCKET_DOCUMENTS_SECRET}

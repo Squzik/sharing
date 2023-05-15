@@ -1,0 +1,2 @@
+ALTER TABLE photo
+    DROP COLUMN IF EXISTS name;

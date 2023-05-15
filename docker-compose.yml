@@ -1,0 +1,79 @@
+version: '3.1'
+services:
+  postgresqldb:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=sh
+      - POSTGRES_USER=sh
+      - POSTGRES_DB=sharing_db
+    networks:
+      - sh
+
+  minio:
+    image: minio/minio:latest
+    command: server --console-address ":9001" /data/
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_URL: http://127.0.0.1
+      MINIO_PORT: 9000
+      MINIO_ROOT_USER: user
+      MINIO_ROOT_PASSWORD: password
+    volumes:
+      - ./docker_volumes/minio-storage:/data
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - sh
+
+  kibana:
+    image: kibana:7.16.1
+    ports:
+      - "5601:5601"
+    volumes:
+      - ./config/kibana/config.yml:/usr/share/kibana/config/kibana.yml:ro
+    depends_on:
+      - elasticsearch
+    networks:
+      - sh
+
+  elasticsearch:
+    image: elasticsearch:7.16.1
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xmx512m -Xms512m"
+      ELASTIC_USERNAME: "elastic"
+      ELASTIC_PASSWORD: "elastic"
+      discovery.type: single-node
+    volumes:
+      - ./config/elasticsearch/config.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./docker_volumes/elasticsearch/data:/usr/share/elasticsearch/data
+    networks:
+      - sh
+
+  logstash:
+    image: logstash:7.16.2
+    ports:
+      - "5046:5046"
+    environment:
+      LS_JAVA_OPTS: "-Xmx512m -Xms512m"
+    volumes:
+      - ./config/logstash/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
+      - ./config/logstash/pipelines:/usr/share/logstash/config/pipelines:ro
+      - ./log:/usr/share/logstash/input
+    depends_on:
+      - elasticsearch
+    networks:
+      - sh
+
+networks:
+  sh:
+    driver: bridge

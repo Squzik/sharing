@@ -1,0 +1,79 @@
+server:
+  port: ${APP_PORT:8080}
+  servlet:
+    context-path: "/renta"
+
+spring:
+  datasource:
+    username: ${DB_USER:flsh}
+    password: ${DB_PASSWORD:flsh}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/flat_sharing_db}
+    driver-class-name: org.postgresql.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      pool-name: SpringBootJPAHikariCP
+      minimum-idle: ${POOL_MIN_IDLE:5} #Default: 10
+      maximum-pool-size: ${POOL_SIZE:25} #Default: 10
+      idle-timeout: ${POOL_IDLE_TIMEOUT:30000} #Default: 600000 (10 minutes)
+      max-lifetime: ${POOL_MAX_LIFETIME:1200000} #Default: 1800000 (30 minutes)
+      connection-timeout: ${POOL_CONNECTION_TIMEOUT:20000} #Default: 30000 (30 seconds)
+
+  mail:
+    host: ${MAIL_HOST:mail.hosting.reg.ru}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:flat-renta.test@madela.dev}
+    password: ${MAIL_PASSWORD:uU0sC0pH6g}
+    properties.mail:
+      transport.protocol: smtp
+      smtp:
+        auth: true
+        debug: true
+        starttls.enable: true
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: true
+    user: ${DB_USER:flsh}
+    password: ${DB_PASSWORD:flsh}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/flat_sharing_db}
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  logback:
+    rollingpolicy:
+      clean-history-on-start: true
+app:
+  minio:
+    url: ${S3_URL:http://127.0.0.1:9000}
+    buckets:
+      photos:
+        name: ${BUCKET_PHOTOS_NAME:photos}
+        access: ${BUCKET_PHOTOS_ACCESS:user}
+        secret: ${BUCKET_PHOTOS_SECRET:password}
+      documents:
+        name: ${BUCKET_DOCUMENTS_NAME:documents}
+        access: ${BUCKET_DOCUMENTS_ACCESS:user}
+        secret: ${BUCKET_DOCUMENTS_SECRET:password}
+jwt:
+  secret:
+    access: supermegasecret
+    refresh: supermegarefreshsecret
+
+sciener:
+  client_id: 044a8d54377c43b290f09b0b3ec48baa
+  client_secret: e9b2c0b34148740953ee5b077a04d0a8
+  auth: https://euapi.sciener.com/oauth2/token
+  create-code: https://euapi.sciener.com/v3/keyboardPwd/get
+  create-custom-code: https://euapi.sciener.com/v3/keyboardPwd/add
+  delete-code: https://euapi.sciener.com/v3/keyboardPwd/delete
+  lock-detail: https://euapi.sciener.com/v3/lock/detail?clientId=%s&accessToken=%s&lockId=%d&date=%d
+  lock-list: https://euapi.sciener.com/v3/lock/list?clientId=%s&accessToken=%s&pageNo=1&pageSize=1000&date=%d
+  open-lock: https://euapi.sciener.com/v3/lock/unlock
